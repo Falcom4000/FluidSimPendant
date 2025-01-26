@@ -1,0 +1,23 @@
+idf_component_register(
+                         SRCS 
+                              "./main.c" 
+                              "./EXIO/TCA9554PWR.c"
+                              "./LCD_Driver/esp_lcd_st77916/esp_lcd_st77916.c" 
+                              "./LCD_Driver/ST77916.c"       
+                              "./I2C_Driver/I2C_Driver.c"
+                              "./PCF85063/PCF85063.c"
+                              "./QMI8658/QMI8658.c"
+                              "./BAT_Driver/BAT_Driver.c"
+                              "./PWR_Key/PWR_Key.c"
+
+                         INCLUDE_DIRS 
+                              "./LCD_Driver/esp_lcd_st77916" 
+                              "./LCD_Driver"   
+                              "./EXIO"
+                              "./I2C_Driver"
+                              "./PCF85063"
+                              "./QMI8658"
+                              "./BAT_Driver"
+                              "./PWR_Key"
+                              "."
+                       )
