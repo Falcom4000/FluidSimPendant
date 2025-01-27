@@ -15,7 +15,7 @@ void LCD_Init() {
   Backlight_Init();
 }
 
-static void test_draw_bitmap(esp_lcd_panel_handle_t panel_handle)
+void test_draw_bitmap(esp_lcd_panel_handle_t panel_handle)
 {
   uint16_t row_line = ((EXAMPLE_LCD_WIDTH / EXAMPLE_LCD_COLOR_BITS) << 1) >> 1 ;
   uint8_t byte_per_pixel = EXAMPLE_LCD_COLOR_BITS / 8;
@@ -33,7 +33,7 @@ static void test_draw_bitmap(esp_lcd_panel_handle_t panel_handle)
   free(color);
 }
 
-static void draw_bit(esp_lcd_panel_handle_t panel_handle, uint16_t x, uint16_t y, uint16_t color)
+void draw_bit(esp_lcd_panel_handle_t panel_handle, uint16_t x, uint16_t y, uint16_t color)
 {
         esp_lcd_panel_draw_bitmap(panel_handle, x, y, x + 1, y + 1, &color);
 }

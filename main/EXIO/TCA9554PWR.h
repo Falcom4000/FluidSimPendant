@@ -1,3 +1,6 @@
+#ifdef __cplusplus
+extern "C" {
+#endif
 #pragma once
 
 
@@ -42,3 +45,6 @@ void Set_Toggle(uint8_t Pin);                               // Flip the level of
 void TCA9554PWR_Init(uint8_t PinState);                     // Set the seven pins to PinState state, for example :PinState=0x23, 0010 0011 State (the highest bit is not used) (Output mode or input mode) 0= Output mode 1= Input mode. The default value is output mode
 
 esp_err_t EXIO_Init(void);
+#ifdef __cplusplus
+}
+#endif

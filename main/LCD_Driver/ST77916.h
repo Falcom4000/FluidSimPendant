@@ -1,3 +1,6 @@
+#ifdef __cplusplus
+extern "C" {
+#endif
 #pragma once
 #include "esp_err.h"
 #include "esp_log.h"
@@ -65,3 +68,8 @@ void LCD_addWindow(uint16_t Xstart, uint16_t Ystart, uint16_t Xend, uint16_t Yen
 
 void Backlight_Init(void);                             // Initialize the LCD backlight, which has been called in the LCD_Init function, ignore it                                                         
 void Set_Backlight(uint8_t Light);                   // Call this function to adjust the brightness of the backlight. The value of the parameter Light ranges from 0 to 100
+void draw_bit(esp_lcd_panel_handle_t panel_handle, uint16_t x, uint16_t y, uint16_t color); // Draw a point on the screen
+void test_draw_bitmap(esp_lcd_panel_handle_t panel_handle);
+#ifdef __cplusplus
+}
+#endif

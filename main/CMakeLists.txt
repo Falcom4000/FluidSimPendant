@@ -1,6 +1,6 @@
 idf_component_register(
                          SRCS 
-                              "./main.c" 
+                              "./main.cpp" 
                               "./EXIO/TCA9554PWR.c"
                               "./LCD_Driver/esp_lcd_st77916/esp_lcd_st77916.c" 
                               "./LCD_Driver/ST77916.c"       
@@ -9,6 +9,8 @@ idf_component_register(
                               "./QMI8658/QMI8658.c"
                               "./BAT_Driver/BAT_Driver.c"
                               "./PWR_Key/PWR_Key.c"
+                              "./FluidSim/Scene.cpp"
+                              "./FluidSim/Mathutils.cpp"
 
                          INCLUDE_DIRS 
                               "./LCD_Driver/esp_lcd_st77916" 
@@ -19,5 +21,6 @@ idf_component_register(
                               "./QMI8658"
                               "./BAT_Driver"
                               "./PWR_Key"
+                              "./FluidSim"
                               "."
                        )

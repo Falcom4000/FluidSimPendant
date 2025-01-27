@@ -1,3 +1,6 @@
+#ifdef __cplusplus
+extern "C" {
+#endif
 #pragma once
 #include "ST77916.h"
 
@@ -14,3 +17,6 @@ void Restart(void);
 
 void PWR_Init(void);
 void PWR_Loop(void);
+#ifdef __cplusplus
+}
+#endif

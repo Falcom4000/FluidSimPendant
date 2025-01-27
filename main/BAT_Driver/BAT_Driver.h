@@ -1,3 +1,6 @@
+#ifdef __cplusplus
+extern "C" {
+#endif
 #pragma once
 
 #include "esp_log.h"
@@ -19,3 +22,6 @@ extern float BAT_analogVolts;
 
 void BAT_Init(void);
 float BAT_Get_Volts(void);
+#ifdef __cplusplus
+}
+#endif
