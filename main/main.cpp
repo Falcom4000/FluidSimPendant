@@ -39,20 +39,21 @@ void Driver_Init(void)
         "Other Driver task",
         4096,
         NULL,
-        3,
+        11,
         NULL,
         tskNO_AFFINITY);
 }
 void FluidSimLoop(void* parameter)
 {
-    for (int i = 0;; ++i) {
-        int64_t start_time = esp_timer_get_time();
+    int64_t start_time = esp_timer_get_time();
+    for (int i = 1;; ++i) {
         QMI8658_Loop();
         scene.update(scene.getdt(), Vector3(0 - Accel.y, -Accel.x, 0));
-
-        int64_t end_time = esp_timer_get_time();
-        ESP_LOGI(TAG1, "Finished %i, FluidSimLoop duration: %lld ms", i, (end_time - start_time) / 1000);
-        vTaskDelay(pdMS_TO_TICKS(10));
+        if ( i % 500 == 0)
+        {
+            ESP_LOGI(TAG1, "Finished %i, FluidSimLoop duration: %lld ms", i, (esp_timer_get_time() - start_time) / 1000);
+            start_time = esp_timer_get_time();
+        }        
     }
     vTaskDelete(NULL);
 }
@@ -81,7 +82,7 @@ void app_main(void)
         tskNO_AFFINITY);
 
     xTaskCreatePinnedToCore(
-        FluidSimLoop,
+        Render,
         "Render",
         10240,
         NULL,

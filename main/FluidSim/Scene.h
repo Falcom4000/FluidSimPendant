@@ -22,7 +22,7 @@ void render();
 void update(real dt, Vector3 G);
 void init(int window_size_, real frame_dt_, real particle_mass_,
         real vol_, real hardening_, real E_, real nu_);
-void add_object(Vec center, int num = 30);
+void add_object(Vec center, int num = 100);
 float getdt(){ return dt;};
 
 
