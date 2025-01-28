@@ -1,5 +1,5 @@
 #include "Scene.h"
-
+#include "esp_attr.h"
 const int n_ = 90;
 Vector3 grid[n_ + 1][n_ + 1]; // velocity + mass, node_res = cell_res + 1
 
@@ -20,6 +20,7 @@ extern "C" void Scene::init(int window_size_, real frame_dt_, real particle_mass
     nu = nu_;
     mu_0 = E / (2 * (1 + nu));
     lambda_0 = E * nu / ((1 + nu) * (1 - 2 * nu));
+    renderBuffer = (uint8_t *)heap_caps_calloc(1, window_size *2 ,MALLOC_CAP_DMA);
     srand(static_cast<unsigned int>(time(nullptr)));
 }
 
@@ -95,5 +96,14 @@ extern "C" void Scene::add_object(Vec center, int num)
     for (int i = 0; i < num; ++i) {
         Vec offset = generate_random_float(-radius, radius);
         particles.emplace_back(Particle(center + offset, Vec(0.0f, 0.0f)));
+    }
+}
+
+extern "C" void Scene::render(esp_lcd_panel_handle_t panel_handle)
+{
+    for (size_t i = 0; i < window_size; i++)
+    {
+        memset(renderBuffer, 0xFFFF/window_size*i, window_size * 2);
+        esp_lcd_panel_draw_bitmap(panel_handle, i, 0, i + 1, 360, renderBuffer);
     }
 }

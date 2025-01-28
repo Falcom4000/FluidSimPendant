@@ -5,6 +5,8 @@
 #include "Vector3.h"
 #include "cstring"
 #include "mat.h"
+#include "esp_heap_caps.h"
+#include "ST77916.h"
 #include <vector>
 using dspm::Mat;
 using real = float;
@@ -15,10 +17,10 @@ private:
     int n, window_size;
     real dt, frame_dt, dx, inv_dx, particle_mass, vol;
     real hardening, E, nu, mu_0, lambda_0;
-
+    uint8_t* renderBuffer;
 public:
 
-void render();
+void render(esp_lcd_panel_handle_t panel_handle);
 void update(real dt, Vector3 G);
 void init(int window_size_, real frame_dt_, real particle_mass_,
         real vol_, real hardening_, real E_, real nu_);

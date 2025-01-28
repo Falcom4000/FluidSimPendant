@@ -5,13 +5,8 @@
 #include "ST77916.h"
 #include "Scene.h"
 #include "TCA9554PWR.h"
-
-#include "dsp_platform.h"
-#include "esp_dsp.h"
 #include "esp_log.h"
-#include <vector>
-static const char* TAG_IMU = "IMU";
-static const char* TAG = "DSP";
+static const char* TAG0 = "RENDER";
 static const char* TAG1 = "FLUID_SIM";
 static Scene scene;
 void Driver_Loop(void* parameter)
@@ -51,17 +46,24 @@ void FluidSimLoop(void* parameter)
         scene.update(scene.getdt(), Vector3(0 - Accel.y, -Accel.x, 0));
         if ( i % 500 == 0)
         {
-            ESP_LOGI(TAG1, "Finished %i, FluidSimLoop duration: %lld ms", i, (esp_timer_get_time() - start_time) / 1000);
+            ESP_LOGI(TAG1, "Finished %i FluidSimLoop, duration: %lld ms", i, (esp_timer_get_time() - start_time) / 1000);
             start_time = esp_timer_get_time();
-        }        
+        }
+        vTaskDelay(pdMS_TO_TICKS(1));        
     }
     vTaskDelete(NULL);
 }
 void Render(void* parameter){
-    while (1)
+    int64_t start_time = esp_timer_get_time();
+    for (int i = 1;; ++i) 
     {
-        test_draw_bitmap(panel_handle);
-        vTaskDelay(pdMS_TO_TICKS(10));
+        scene.render(panel_handle);
+        if ( i % 500 == 0)
+        {
+            ESP_LOGI(TAG0, "Finished %i Render, duration: %lld ms", i, (esp_timer_get_time() - start_time) / 1000);
+            start_time = esp_timer_get_time();
+        }
+        vTaskDelay(pdMS_TO_TICKS(1)); 
     }
     vTaskDelete(NULL);
 }
