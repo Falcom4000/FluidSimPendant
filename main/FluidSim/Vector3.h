@@ -1,8 +1,9 @@
-#ifndef VECTOR_3_H
-#define VECTOR_3_H
+#ifndef VECTOR3_H
+#define VECTOR3_H
 #include <cmath>
-class Vector3
-{
+// TODO: Add support for dsp library
+namespace Mathutils {
+class Vector3 {
 public:
     float x, y, z;
 
@@ -35,48 +36,48 @@ public:
         z *= k;
     }
 
-    void operator+=(const Vector3 &v)
+    void operator+=(const Vector3& v)
     {
         x += v.x;
         y += v.y;
         z += v.z;
     }
 
-    void operator-=(const Vector3 &v)
+    void operator-=(const Vector3& v)
     {
         x -= v.x;
         y -= v.y;
         z -= v.z;
     }
 
-    void operator*=(const Vector3 &v)
+    void operator*=(const Vector3& v)
     {
         x *= v.x;
         y *= v.y;
         z *= v.z;
     }
 
-    void operator/=(const Vector3 &v)
+    void operator/=(const Vector3& v)
     {
         x /= v.x;
         y /= v.y;
         z /= v.z;
     }
-    Vector3 operator+(const float &k) const { return Vector3(x + k, y + k, z + k); }
+    Vector3 operator+(const float& k) const { return Vector3(x + k, y + k, z + k); }
 
-    Vector3 operator-(const float &k) const { return Vector3(x - k, y - k, z - k); }
+    Vector3 operator-(const float& k) const { return Vector3(x - k, y - k, z - k); }
 
-    Vector3 operator*(const float &k) const { return Vector3(x * k, y * k, z * k); }
+    Vector3 operator*(const float& k) const { return Vector3(x * k, y * k, z * k); }
 
-    Vector3 operator+(const Vector3 &v) const { return Vector3(x + v.x, y + v.y, z + v.z); }
+    Vector3 operator+(const Vector3& v) const { return Vector3(x + v.x, y + v.y, z + v.z); }
 
-    Vector3 operator-(const Vector3 &v) const { return Vector3(x - v.x, y - v.y, z - v.z); }
+    Vector3 operator-(const Vector3& v) const { return Vector3(x - v.x, y - v.y, z - v.z); }
 
-    Vector3 operator*(const Vector3 &v) const { return Vector3(x * v.x, y * v.y, z * v.z); }
+    Vector3 operator*(const Vector3& v) const { return Vector3(x * v.x, y * v.y, z * v.z); }
 
-    Vector3 operator/(const Vector3 &v) const { return Vector3(x / v.x, y / v.y, z / v.z); }
-
+    Vector3 operator/(const Vector3& v) const { return Vector3(x / v.x, y / v.y, z / v.z); }
 };
 
+}
 
 #endif

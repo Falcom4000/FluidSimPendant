@@ -49,7 +49,7 @@ void FluidSimLoop(void* parameter)
             ESP_LOGI(TAG1, "Finished %i FluidSimLoop, duration: %lld ms", i, (esp_timer_get_time() - start_time) / 1000);
             start_time = esp_timer_get_time();
         }
-        vTaskDelay(pdMS_TO_TICKS(1));        
+        //vTaskDelay(pdMS_TO_TICKS(1));        
     }
     vTaskDelete(NULL);
 }
@@ -63,7 +63,7 @@ void Render(void* parameter){
             ESP_LOGI(TAG0, "Finished %i Render, duration: %lld ms", i, (esp_timer_get_time() - start_time) / 1000);
             start_time = esp_timer_get_time();
         }
-        vTaskDelay(pdMS_TO_TICKS(1)); 
+        vTaskDelay(pdMS_TO_TICKS(10)); 
     }
     vTaskDelete(NULL);
 }
@@ -73,7 +73,8 @@ void app_main(void)
     Driver_Init();
     LCD_Init();
     scene.init(360, 1e-3, 1.0F, 5.0F, 10.0f, 1e4F, 0.2F);
-    scene.add_object(Vec(0.3, 0.2));
+    scene.add_object(Vec(0.3, 0.2), 500);
+    // TODO: add locks for two threads
     xTaskCreatePinnedToCore(
         FluidSimLoop,
         "FluidSim",
@@ -83,12 +84,12 @@ void app_main(void)
         NULL,
         tskNO_AFFINITY);
 
-    xTaskCreatePinnedToCore(
-        Render,
-        "Render",
-        10240,
-        NULL,
-        10,
-        NULL,
-        tskNO_AFFINITY);
+    // xTaskCreatePinnedToCore(
+    //     Render,
+    //     "Render",
+    //     10240,
+    //     NULL,
+    //     10,
+    //     NULL,
+    //     tskNO_AFFINITY);
 }

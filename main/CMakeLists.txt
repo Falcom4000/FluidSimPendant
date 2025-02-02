@@ -10,7 +10,6 @@ idf_component_register(
                               "./BAT_Driver/BAT_Driver.c"
                               "./PWR_Key/PWR_Key.c"
                               "./FluidSim/Scene.cpp"
-                              "./FluidSim/Mathutils.cpp"
 
                          INCLUDE_DIRS 
                               "./LCD_Driver/esp_lcd_st77916" 

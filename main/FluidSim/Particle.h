@@ -1,18 +1,18 @@
-#include "Vector2.h"
-#include "mat.h"
-using Vec = Vector2;
+#include "Mathutils.h"
+using Vec = Mathutils::Vector2;
 using real = float;
-using dspm::Mat;
+using Vector3 = Mathutils::Vector3;
+using Mat = Mathutils::Matrix2;
+
 struct Particle {
     Vec x, v;
-    Mat F;
-    Mat C;
+    Mat F, C;
     real Jp;
     Particle(Vec x, Vec v = Vec(0))
         : x(x)
         , v(v)
-        , F(dspm::Mat::eye(2)) // 
-        , C(Mat(2,2)) // 浅复制？
+        , F(1)
+        , C(0)
         , Jp(1)
     {
     }

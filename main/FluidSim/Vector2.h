@@ -1,11 +1,13 @@
-#ifndef VECTORH
-#define VECTORH
+#ifndef VECTOR2H
+#define VECTOR2H
 #include <cmath>
-class Vector2
+#include <cstdlib>
+namespace Mathutils {
+    using real = float;
+    class Vector2
 {
 public:
     float x, y;
-
 public:
     Vector2()
         : x(0.0f)
@@ -67,10 +69,13 @@ public:
     float length() const { return std::sqrt(lengthSqr()); }
 
 public:
-    const static Vector2 ZERO;
 
     static Vector2 crossProd(const Vector2 &v) { return Vector2(-v.y, v.x); }
+    static Vector2 RAND() { const float x_  = real(rand())/RAND_MAX ; const float y_  = real(rand())/RAND_MAX ;return Vector2(x_, y_);}
+
 };
+}
+
 
 // Vector2 operator*(const float &k, const Vector2 &v){
 //     return Vector2(k * v.x, k * v.y);

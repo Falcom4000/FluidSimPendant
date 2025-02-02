@@ -2,14 +2,14 @@
 #define SCENE_H 
 #include "Mathutils.h"
 #include "Particle.h"
-#include "Vector3.h"
 #include "cstring"
-#include "mat.h"
 #include "esp_heap_caps.h"
 #include "ST77916.h"
 #include <vector>
-using dspm::Mat;
-using real = float;
+#include <ctime>
+using Vec = Mathutils::Vector2;
+using Vector3 = Mathutils::Vector3;
+using Mat = Mathutils::Matrix2;
 
 class Scene {
 private:
