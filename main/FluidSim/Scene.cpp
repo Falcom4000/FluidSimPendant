@@ -1,7 +1,7 @@
 #include "Scene.h"
 #include "esp_attr.h"
 #include <algorithm>
-const int n_ = 40;
+const int n_ = 24;
 Vector3 grid[n_ + 1][n_ + 1]; // velocity + mass, node_res = cell_res + 1
 bool BoolRenderBuffer[n_][n_];
 extern "C" void Scene::init(int window_size_, real frame_dt_, real particle_mass_,
@@ -96,7 +96,7 @@ extern "C" void Scene::add_object(Vec center, int num)
     for (int i = 0; i < num; i++) {
         real dx = real(rand()) / RAND_MAX;
         real dy = real(rand()) / RAND_MAX;
-        particles.emplace_back(center + Vec((dx - 0.5) * 0.6, (dy - 0.5) * 0.70));
+        particles.emplace_back(center + Vec((dx - 0.5) * 0.5, (dy - 0.5) * 0.20));
     }
     std::sort(particles.begin(), particles.end(), [](const Particle& a, const Particle& b) {
         return a.x.y < b.x.y;
@@ -106,7 +106,7 @@ extern "C" void Scene::add_object(Vec center, int num)
 extern "C" IRAM_ATTR void Scene::render(esp_lcd_panel_handle_t panel_handle)
 {
     for (int ChunkId = 0; ChunkId < ChunkNum; ++ChunkId) {
-        memset(renderBuffer, 0, window_size * rowInChunk * BytePerPixel);
+        memset(renderBuffer, 0xff, window_size * rowInChunk * BytePerPixel);
         for (int i = 0; i < n; ++i) {
             int j0 = ChunkId * rowInChunk / displayScale;
             for (int j = j0; j < (ChunkId + 1) * rowInChunk / displayScale; ++j) {
@@ -116,7 +116,7 @@ extern "C" IRAM_ATTR void Scene::render(esp_lcd_panel_handle_t panel_handle)
                             int idx = (i * displayScale + ii) * BytePerPixel + window_size * (((j - j0) * displayScale + jj)* BytePerPixel ) + 0;
                             if (idx < window_size * rowInChunk * BytePerPixel) {
                                 renderBuffer[idx + 0] = 0x00;
-                                renderBuffer[idx + 1] = 0xff;
+                                renderBuffer[idx + 1] = 0xbb;
                             }
                         }
                     }
@@ -124,7 +124,7 @@ extern "C" IRAM_ATTR void Scene::render(esp_lcd_panel_handle_t panel_handle)
             }
         }
         esp_lcd_panel_draw_bitmap(panel_handle, 0, ChunkId * rowInChunk, window_size, (ChunkId + 1) * rowInChunk, renderBuffer);
-        vTaskDelay(pdMS_TO_TICKS(20));
+        vTaskDelay(pdMS_TO_TICKS(10));
     }
-    memset(BoolRenderBuffer, 0, sizeof(BoolRenderBuffer));
+    memset(BoolRenderBuffer, 0x00, sizeof(BoolRenderBuffer));
 }
