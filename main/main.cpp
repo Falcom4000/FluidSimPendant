@@ -16,7 +16,6 @@ void Driver_Loop(void* parameter)
         PCF85063_Loop();
         BAT_Get_Volts();
         PWR_Loop();
-
         vTaskDelay(pdMS_TO_TICKS(100));
     }
     vTaskDelete(NULL);
@@ -43,27 +42,24 @@ void FluidSimLoop(void* parameter)
     int64_t start_time = esp_timer_get_time();
     for (int i = 1;; ++i) {
         QMI8658_Loop();
-        scene.update(scene.getdt(), Vector3(0 - Accel.y, -Accel.x, 0));
-        if ( i % 500 == 0)
-        {
+        scene.update(scene.getdt(), Vector3(0 - Accel.y * 1500, Accel.x * 1500, 0));
+        if (i % 1000 == 0) {
             ESP_LOGI(TAG1, "Finished %i FluidSimLoop, duration: %lld ms", i, (esp_timer_get_time() - start_time) / 1000);
             start_time = esp_timer_get_time();
         }
-        //vTaskDelay(pdMS_TO_TICKS(1));        
     }
     vTaskDelete(NULL);
 }
-void Render(void* parameter){
+void Render(void* parameter)
+{
     int64_t start_time = esp_timer_get_time();
-    for (int i = 1;; ++i) 
-    {
+    for (int i = 1;; ++i) {
         scene.render(panel_handle);
-        if ( i % 500 == 0)
-        {
+        if (i % 1000 == 0) {
             ESP_LOGI(TAG0, "Finished %i Render, duration: %lld ms", i, (esp_timer_get_time() - start_time) / 1000);
             start_time = esp_timer_get_time();
         }
-        vTaskDelay(pdMS_TO_TICKS(10)); 
+        vTaskDelay(pdMS_TO_TICKS(20));
     }
     vTaskDelete(NULL);
 }
@@ -73,8 +69,8 @@ void app_main(void)
     Driver_Init();
     LCD_Init();
     scene.init(360, 1e-3, 1.0F, 5.0F, 10.0f, 1e4F, 0.2F);
-    scene.add_object(Vec(0.3, 0.2), 500);
-    // TODO: add locks for two threads
+    scene.add_object(Vec(0.5, 0.4), 700);
+    ESP_LOGI(TAG1, "Finished init.");
     xTaskCreatePinnedToCore(
         FluidSimLoop,
         "FluidSim",
@@ -83,13 +79,12 @@ void app_main(void)
         10,
         NULL,
         tskNO_AFFINITY);
-
-    // xTaskCreatePinnedToCore(
-    //     Render,
-    //     "Render",
-    //     10240,
-    //     NULL,
-    //     10,
-    //     NULL,
-    //     tskNO_AFFINITY);
+    xTaskCreatePinnedToCore(
+        Render,
+        "Render",
+        10240,
+        NULL,
+        10,
+        NULL,
+        tskNO_AFFINITY);
 }

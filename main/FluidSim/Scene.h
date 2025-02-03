@@ -14,7 +14,7 @@ using Mat = Mathutils::Matrix2;
 class Scene {
 private:
     std::vector<Particle> particles;
-    int n, window_size;
+    int n, window_size, rowInChunk, ChunkNum, BytePerPixel, displayScale;
     real dt, frame_dt, dx, inv_dx, particle_mass, vol;
     real hardening, E, nu, mu_0, lambda_0;
     uint8_t* renderBuffer;
@@ -24,7 +24,7 @@ void render(esp_lcd_panel_handle_t panel_handle);
 void update(real dt, Vector3 G);
 void init(int window_size_, real frame_dt_, real particle_mass_,
         real vol_, real hardening_, real E_, real nu_);
-void add_object(Vec center, int num = 100);
+void add_object(Vec center, int num = 1000);
 float getdt(){ return dt;};
 
 
