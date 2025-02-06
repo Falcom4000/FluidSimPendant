@@ -17,18 +17,20 @@ void LCD_Init() {
 
 void test_draw_bitmap(esp_lcd_panel_handle_t panel_handle)
 {
-  uint16_t row_line = ((EXAMPLE_LCD_WIDTH / EXAMPLE_LCD_COLOR_BITS) << 1) >> 1 ;
-  uint8_t byte_per_pixel = EXAMPLE_LCD_COLOR_BITS / 8;
-  uint8_t *color = (uint8_t *)heap_caps_calloc(1, row_line * EXAMPLE_LCD_HEIGHT * byte_per_pixel, MALLOC_CAP_DMA);
+  uint16_t row_line = 20;
+
+  uint8_t byte_per_pixel = 2;
+  uint8_t *color = (uint8_t *)heap_caps_calloc(1, 20 * EXAMPLE_LCD_HEIGHT * byte_per_pixel, MALLOC_CAP_DMA);
 
 
-  for (int j = 0; j < EXAMPLE_LCD_COLOR_BITS; j++) {
-      for (int i = 0; i < row_line * EXAMPLE_LCD_HEIGHT; i++) {
-          for (int k = 0; k < byte_per_pixel; k++) {
-              color[i * byte_per_pixel + k] = (SPI_SWAP_DATA_TX(0xff, EXAMPLE_LCD_COLOR_BITS) >> (k * 8)) & 0xff;
-          }
+  for (int j = 0; j < 18; j++) {
+      for (int i = 0; i < 20 * EXAMPLE_LCD_HEIGHT; i++) {
+          //memset(color + i * byte_per_pixel,  (0xff/20*j) < 8 + 0xff/20*j, byte_per_pixel);
+          color[i * byte_per_pixel + 0] = 0xff/20*j;
+          color[i * byte_per_pixel + 1] = 0xff/20*j;
       }
       esp_lcd_panel_draw_bitmap(panel_handle, 0, j * row_line, EXAMPLE_LCD_HEIGHT, (j + 1) * row_line, color);
+      vTaskDelay(pdMS_TO_TICKS(10));
   }
   free(color);
 }
@@ -122,7 +124,7 @@ void ST77916_Init() {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Backlight program
 
-uint8_t LCD_Backlight = 100;
+uint8_t LCD_Backlight = 75;
 static ledc_channel_config_t ledc_channel;
 void Backlight_Init(void)
 {

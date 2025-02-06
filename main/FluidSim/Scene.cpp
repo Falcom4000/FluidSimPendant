@@ -23,8 +23,8 @@ extern "C" void Scene::init(int window_size_, real frame_dt_, real particle_mass
     BytePerPixel = 2;
     lambda_0 = E * nu / ((1 + nu) * (1 - 2 * nu));
     rowInChunk = 180;
-    renderBuffer = (uint8_t*)heap_caps_calloc(1, window_size * BytePerPixel * rowInChunk, MALLOC_CAP_DMA);
     ChunkNum = window_size / rowInChunk;
+    renderBuffer = (uint8_t*)heap_caps_calloc(1, window_size * BytePerPixel * rowInChunk, MALLOC_CAP_DMA);
     displayScale = window_size / n;
     srand(static_cast<unsigned int>(time(nullptr)));
 }
@@ -111,8 +111,8 @@ extern "C" IRAM_ATTR void Scene::render(esp_lcd_panel_handle_t panel_handle)
             int j0 = ChunkId * rowInChunk / displayScale;
             for (int j = j0; j < (ChunkId + 1) * rowInChunk / displayScale; ++j) {
                 if (BoolRenderBuffer[i][j]) {
-                    for (int ii = 0; ii < displayScale; ++ii) {
-                        for (int jj = 0; jj < displayScale; ++jj) {
+                    for (int ii = 1; ii < displayScale - 1; ++ii) {
+                        for (int jj = 1; jj < displayScale - 1; ++jj) {
                             int idx = (i * displayScale + ii) * BytePerPixel + window_size * (((j - j0) * displayScale + jj)* BytePerPixel ) + 0;
                             if (idx < window_size * rowInChunk * BytePerPixel) {
                                 renderBuffer[idx + 0] = 0x00;
@@ -124,7 +124,7 @@ extern "C" IRAM_ATTR void Scene::render(esp_lcd_panel_handle_t panel_handle)
             }
         }
         esp_lcd_panel_draw_bitmap(panel_handle, 0, ChunkId * rowInChunk, window_size, (ChunkId + 1) * rowInChunk, renderBuffer);
-        vTaskDelay(pdMS_TO_TICKS(10));
+        vTaskDelay(pdMS_TO_TICKS(30));
     }
     memset(BoolRenderBuffer, 0x00, sizeof(BoolRenderBuffer));
 }
