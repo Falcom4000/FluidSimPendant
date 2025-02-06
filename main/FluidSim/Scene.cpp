@@ -1,9 +1,9 @@
 #include "Scene.h"
-#include "esp_attr.h"
-#include <algorithm>
+
 const int n_ = 24;
 Vector3 grid[n_ + 1][n_ + 1]; // velocity + mass, node_res = cell_res + 1
-bool BoolRenderBuffer[n_][n_];
+bool isFluid[n_][n_];
+bool isFluid_old[n_][n_];
 extern "C" void Scene::init(int window_size_, real frame_dt_, real particle_mass_,
     real vol_, real hardening_, real E_, real nu_)
 {
@@ -23,9 +23,19 @@ extern "C" void Scene::init(int window_size_, real frame_dt_, real particle_mass
     BytePerPixel = 2;
     lambda_0 = E * nu / ((1 + nu) * (1 - 2 * nu));
     rowInChunk = 180;
-    ChunkNum = window_size / rowInChunk;
-    renderBuffer = (uint8_t*)heap_caps_calloc(1, window_size * BytePerPixel * rowInChunk, MALLOC_CAP_DMA);
     displayScale = window_size / n;
+    ChunkNum = window_size / rowInChunk;
+    fluid = (uint8_t*)heap_caps_calloc(1, displayScale* displayScale* BytePerPixel, MALLOC_CAP_DMA);
+    memset(fluid, 0xff, displayScale* displayScale * BytePerPixel);
+    vTaskDelay(pdMS_TO_TICKS(10));
+    for (int i = 1; i < displayScale - 1; i++) {
+        for(int j = 1; j < displayScale - 1; j++){
+            fluid[i * displayScale * BytePerPixel + j* BytePerPixel] = 0x00;
+            fluid[i * displayScale * BytePerPixel+ j * BytePerPixel+ 1] = 0xbb;
+        }
+    }
+    background = (uint8_t*)heap_caps_calloc(1, displayScale* displayScale * BytePerPixel, MALLOC_CAP_DMA);
+    memset(background, 0xff, displayScale*displayScale * BytePerPixel);
     srand(static_cast<unsigned int>(time(nullptr)));
 }
 
@@ -63,14 +73,14 @@ extern "C" void IRAM_ATTR Scene::update(real dt, Vector3 G)
                 real y = real(j) / n; // boundary thick.,node coord
                 if (x < boundary || x > 1 - boundary || y > 1 - boundary)
                     g = Vector3(0); // Sticky
-                if (y < boundary)
+                else if (y < boundary)
                     g.y = std::max(0.0F, g.x); //"Separate"
             }
         }
     }
     for (auto& p : particles) { // Grid to particle
         Vec base_coord = Vec(floor(p.x.x * inv_dx - 0.5f), floor(p.x.y * inv_dx - 0.5f));
-        BoolRenderBuffer[int(base_coord.x)][int(base_coord.y)] = 1;
+        isFluid[int(base_coord.x)][int(base_coord.y)] = 1;
         Vec fx = p.x * inv_dx - base_coord;
         Vec w[3] { Vec(0.5) * sqr(Vec(1.5) - fx), Vec(0.75) - sqr(fx - Vec(1.0)),
             Vec(0.5) * sqr(fx - Vec(0.5)) };
@@ -105,26 +115,13 @@ extern "C" void Scene::add_object(Vec center, int num)
 
 extern "C" IRAM_ATTR void Scene::render(esp_lcd_panel_handle_t panel_handle)
 {
-    for (int ChunkId = 0; ChunkId < ChunkNum; ++ChunkId) {
-        memset(renderBuffer, 0xff, window_size * rowInChunk * BytePerPixel);
-        for (int i = 0; i < n; ++i) {
-            int j0 = ChunkId * rowInChunk / displayScale;
-            for (int j = j0; j < (ChunkId + 1) * rowInChunk / displayScale; ++j) {
-                if (BoolRenderBuffer[i][j]) {
-                    for (int ii = 1; ii < displayScale - 1; ++ii) {
-                        for (int jj = 1; jj < displayScale - 1; ++jj) {
-                            int idx = (i * displayScale + ii) * BytePerPixel + window_size * (((j - j0) * displayScale + jj)* BytePerPixel ) + 0;
-                            if (idx < window_size * rowInChunk * BytePerPixel) {
-                                renderBuffer[idx + 0] = 0x00;
-                                renderBuffer[idx + 1] = 0xbb;
-                            }
-                        }
-                    }
-                }
+    for(int i = 0; i < n; i++){
+        for(int j = 0; j < n; j++){
+            if((isFluid[i][j]^isFluid_old[i][j]) == 1){
+                esp_lcd_panel_draw_bitmap(panel_handle, i*displayScale, j*displayScale, (i + 1) * displayScale, (j + 1) * displayScale, isFluid[i][j] ? fluid : background);
             }
         }
-        esp_lcd_panel_draw_bitmap(panel_handle, 0, ChunkId * rowInChunk, window_size, (ChunkId + 1) * rowInChunk, renderBuffer);
-        vTaskDelay(pdMS_TO_TICKS(30));
     }
-    memset(BoolRenderBuffer, 0x00, sizeof(BoolRenderBuffer));
+    memcpy(isFluid_old, isFluid, sizeof(isFluid));
+    memset(isFluid, 0, sizeof(isFluid));
 }

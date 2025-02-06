@@ -26,8 +26,8 @@ void test_draw_bitmap(esp_lcd_panel_handle_t panel_handle)
   for (int j = 0; j < 18; j++) {
       for (int i = 0; i < 20 * EXAMPLE_LCD_HEIGHT; i++) {
           //memset(color + i * byte_per_pixel,  (0xff/20*j) < 8 + 0xff/20*j, byte_per_pixel);
-          color[i * byte_per_pixel + 0] = 0xff/20*j;
-          color[i * byte_per_pixel + 1] = 0xff/20*j;
+          color[i * byte_per_pixel + 0] = 0xff;
+          color[i * byte_per_pixel + 1] = 0xff;
       }
       esp_lcd_panel_draw_bitmap(panel_handle, 0, j * row_line, EXAMPLE_LCD_HEIGHT, (j + 1) * row_line, color);
       vTaskDelay(pdMS_TO_TICKS(10));

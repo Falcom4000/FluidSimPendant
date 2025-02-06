@@ -25,7 +25,7 @@ void Driver_Init(void)
     PWR_Init();
     BAT_Init();
     I2C_Init();
-    EXIO_Init(); // Example Initialize EXIO
+    EXIO_Init();
     PCF85063_Init();
     QMI8658_Init();
     xTaskCreatePinnedToCore(
@@ -43,23 +43,11 @@ void FluidSimLoop(void* parameter)
     for (int i = 1;; ++i) {
         QMI8658_Loop();
         scene.update(scene.getdt(), Vector3(0 - Accel.y * 1400, Accel.x * 1400, 0));
+        scene.render(panel_handle);
         if (i % 1000 == 0) {
             ESP_LOGI(TAG1, "Finished %i FluidSimLoop, duration: %lld ms", i, (esp_timer_get_time() - start_time) / 1000);
             start_time = esp_timer_get_time();
         }
-    }
-    vTaskDelete(NULL);
-}
-void Render(void* parameter)
-{
-    int64_t start_time = esp_timer_get_time();
-    for (int i = 1;; ++i) {
-        scene.render(panel_handle);
-        if (i % 1000 == 0) {
-            ESP_LOGI(TAG0, "Finished %i Render, duration: %lld ms", i, (esp_timer_get_time() - start_time) / 1000);
-            start_time = esp_timer_get_time();
-        }
-        vTaskDelay(pdMS_TO_TICKS(10));
     }
     vTaskDelete(NULL);
 }
@@ -69,19 +57,11 @@ void app_main(void)
     Driver_Init();
     LCD_Init();
     scene.init(360, 1e-3, 1.0F, 5.0F, 10.0f, 1e4F, 0.2F);
-    scene.add_object(Vec(0.5, 0.3), 700);
+    scene.add_object(Vec(0.5, 0.3), 1000);
     ESP_LOGI(TAG1, "Finished init.");
     xTaskCreatePinnedToCore(
         FluidSimLoop,
         "FluidSim",
-        10240,
-        NULL,
-        10,
-        NULL,
-        tskNO_AFFINITY);
-    xTaskCreatePinnedToCore(
-        Render,
-        "Render",
         10240,
         NULL,
         10,

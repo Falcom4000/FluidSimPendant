@@ -7,6 +7,9 @@
 #include "ST77916.h"
 #include <vector>
 #include <ctime>
+#include "esp_attr.h"
+#include "esp_lcd_panel_ops.h"
+#include <algorithm>
 using Vec = Mathutils::Vector2;
 using Vector3 = Mathutils::Vector3;
 using Mat = Mathutils::Matrix2;
@@ -17,7 +20,7 @@ private:
     int n, window_size, rowInChunk, ChunkNum, BytePerPixel, displayScale;
     real dt, frame_dt, dx, inv_dx, particle_mass, vol;
     real hardening, E, nu, mu_0, lambda_0;
-    uint8_t* renderBuffer;
+    uint8_t* fluid, *background;
 public:
 
 void render(esp_lcd_panel_handle_t panel_handle);
