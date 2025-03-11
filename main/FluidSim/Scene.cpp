@@ -1,47 +1,27 @@
 #include "Scene.h"
-
-const int n_ = 24;
-Vector3 grid[n_ + 1][n_ + 1]; // velocity + mass, node_res = cell_res + 1
-bool isFluid[n_][n_];
-bool isFluid_old[n_][n_];
-extern "C" void Scene::init(int window_size_, real frame_dt_, real particle_mass_,
-    real vol_, real hardening_, real E_, real nu_)
+extern "C" void Scene::init(Vec center)
 {
-    // TODO: MAKE THEM CONST
-    n = n_;
-    window_size = window_size_;
-    dt = 60e-4F / n;
-    frame_dt = frame_dt_;
-    dx = 1.0F / n;
-    inv_dx = 1.0F / dx;
-    particle_mass = particle_mass_;
-    vol = vol_;
-    hardening = hardening_;
-    E = E_;
-    nu = nu_;
-    mu_0 = E / (2 * (1 + nu));
-    BytePerPixel = 2;
-    lambda_0 = E * nu / ((1 + nu) * (1 - 2 * nu));
-    rowInChunk = 180;
-    displayScale = window_size / n;
-    ChunkNum = window_size / rowInChunk;
-    fluid = (uint8_t*)heap_caps_calloc(1, displayScale* displayScale* BytePerPixel, MALLOC_CAP_DMA);
-    memset(fluid, 0xff, displayScale* displayScale * BytePerPixel);
-    vTaskDelay(pdMS_TO_TICKS(10));
+    fluid = (uint8_t*)heap_caps_calloc(1, displayScale * displayScale * BytePerPixel, MALLOC_CAP_DMA);
+    background = (uint8_t*)heap_caps_calloc(1, displayScale * displayScale * BytePerPixel, MALLOC_CAP_DMA);
+    memset(background, 0xff, displayScale * displayScale * BytePerPixel);
+    memset(grid, 0, sizeof(grid)); // Reset grid
+    memset(isFluid, 0 ,sizeof(isFluid));
+    memset(isFluid_old, 0 ,sizeof(isFluid_old));
+    memset(fluid, 0xff, displayScale * displayScale * BytePerPixel);
     for (int i = 1; i < displayScale - 1; i++) {
-        for(int j = 1; j < displayScale - 1; j++){
-            fluid[i * displayScale * BytePerPixel + j* BytePerPixel] = 0x00;
-            fluid[i * displayScale * BytePerPixel+ j * BytePerPixel+ 1] = 0xbb;
+        for (int j = 1; j < displayScale - 1; j++) {
+            fluid[i * displayScale * BytePerPixel + j * BytePerPixel] = 0x00;
+            fluid[i * displayScale * BytePerPixel + j * BytePerPixel + 1] = 0xbb;
         }
     }
-    background = (uint8_t*)heap_caps_calloc(1, displayScale* displayScale * BytePerPixel, MALLOC_CAP_DMA);
-    memset(background, 0xff, displayScale*displayScale * BytePerPixel);
     srand(static_cast<unsigned int>(time(nullptr)));
+    particles.clear();
+    add_object(center);
 }
 
 extern "C" void IRAM_ATTR Scene::update(real dt, Vector3 G)
 {
-    std::memset(grid, 0, sizeof(grid)); // Reset grid
+    memset(grid, 0, sizeof(grid)); // Reset grid
     for (auto& p : particles) { // P2G
         Vec base_coord = Vec(floor(p.x.x * inv_dx - 0.5f), floor(p.x.y * inv_dx - 0.5f));
         Vec fx = p.x * inv_dx - base_coord;
@@ -67,14 +47,13 @@ extern "C" void IRAM_ATTR Scene::update(real dt, Vector3 G)
             auto& g = grid[i][j];
             if (g.z > 0) { // No need for epsilon here
                 g /= g.z; //        Normalize by mass
-                g += G * dt; //                  Gravity
-                real boundary = 0.05;
+                g += G * dt * GravityScale; //                  Gravity
                 real x = (real)i / n;
                 real y = real(j) / n; // boundary thick.,node coord
                 if (x < boundary || x > 1 - boundary || y > 1 - boundary)
                     g = Vector3(0); // Sticky
                 else if (y < boundary)
-                    g.y = std::max(0.0F, g.x); //"Separate"
+                    g.y = std::max(0.0F, g.y); //"Separate"
             }
         }
     }
@@ -115,10 +94,11 @@ extern "C" void Scene::add_object(Vec center, int num)
 
 extern "C" IRAM_ATTR void Scene::render(esp_lcd_panel_handle_t panel_handle)
 {
-    for(int i = 0; i < n; i++){
-        for(int j = 0; j < n; j++){
-            if((isFluid[i][j]^isFluid_old[i][j]) == 1){
-                esp_lcd_panel_draw_bitmap(panel_handle, i*displayScale, j*displayScale, (i + 1) * displayScale, (j + 1) * displayScale, isFluid[i][j] ? fluid : background);
+    for (int i = 2; i < n - 2; i++) {
+        for (int j = 2; j < n - 2; j++) {
+            if ((isFluid[i][j] ^ isFluid_old[i][j]) == 1) {
+                esp_lcd_panel_draw_bitmap(panel_handle, i * displayScale, j * displayScale, (i + 1) * displayScale, (j + 1) * displayScale, isFluid[i][j] ? fluid : background);
+                //isFluid_old[i][j] = isFluid[i][j];
             }
         }
     }
